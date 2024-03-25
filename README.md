@@ -1,3 +1,10 @@
+# Smooth-WI-Zoom vs WI-Zoom
+
+
+
+
+<video src="https://github.com/Prolu7/Smooth-WI-Zoom/assets/89208083/482c2d90-3dfb-4299-8b13-127fca288d1b" type="video/mp4" alt="Comparison of the Smooth-WI-Zoom fork vs the original WI-Zoom" controls/></video>
+
 ![comparison of no zoom, 3x zoom, and 50x zoom](https://user-images.githubusercontent.com/10100202/67816432-973d2400-fab2-11e9-8699-e05eb5ba6551.jpg)
 
 # WI Zoom (Wurst-Imperium Zoom)
