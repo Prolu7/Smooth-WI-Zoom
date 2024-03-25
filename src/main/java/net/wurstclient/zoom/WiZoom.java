@@ -28,6 +28,8 @@ public enum WiZoom
 	private KeyBinding zoomKey;
 	private final double defaultLevel = 3;
 	private Double currentLevel;
+	double actualLevel;
+	double lerpSpeed = 8f;
 	private Double defaultMouseSensitivity;
 	
 	public void initialize()
@@ -42,38 +44,54 @@ public enum WiZoom
 			GLFW.GLFW_KEY_V, "WI Zoom");
 		KeyBindingHelper.registerKeyBinding(zoomKey);
 	}
-	
+	public double lerp(double a, double b, double f)
+	{
+	    return a * (1.0 - f) + (b * f);
+	}
+	boolean hasZoomed = false;
+	long lastFrameTime = System.nanoTime();
 	public double changeFovBasedOnZoom(double fov)
 	{
 		SimpleOption<Double> mouseSensitivitySetting =
 			MC.options.getMouseSensitivity();
+		if(defaultMouseSensitivity == null)
+			defaultMouseSensitivity = mouseSensitivitySetting.getValue();
 		
 		if(currentLevel == null)
 			currentLevel = defaultLevel;
 		
 		if(!zoomKey.isPressed())
 		{
-			currentLevel = defaultLevel;
-			
-			if(defaultMouseSensitivity != null)
-			{
-				mouseSensitivitySetting.setValue(defaultMouseSensitivity);
+			if(mouseSensitivitySetting.getValue() != defaultMouseSensitivity)
+				mouseSensitivitySetting
+					.setValue(defaultMouseSensitivity);
+			else
 				defaultMouseSensitivity = null;
-			}
-			
-			return fov;
+
+			currentLevel = 1.0;
+			hasZoomed = false;
+		}
+		else if(!hasZoomed) {
+			currentLevel = defaultLevel;
+			hasZoomed = true;
+		}
+		else {
+			// Adjust mouse sensitivity in relation to zoom level.
+			mouseSensitivitySetting
+				.setValue(defaultMouseSensitivity * (1.0 / actualLevel));
 		}
 		
-		if(defaultMouseSensitivity == null)
-			defaultMouseSensitivity = mouseSensitivitySetting.getValue();
-			
-		// Adjust mouse sensitivity in relation to zoom level.
-		// 1.0 / currentLevel is a value between 0.02 (50x zoom)
-		// and 1 (no zoom).
-		mouseSensitivitySetting
-			.setValue(defaultMouseSensitivity * (1.0 / currentLevel));
 		
-		return fov / currentLevel;
+		long thisFrameTime = System.nanoTime();
+	    double deltaTime = (thisFrameTime - lastFrameTime) / 1_000_000_000.0;  // Convert to seconds
+	    lastFrameTime = thisFrameTime;
+		double realLerpSpeed = lerpSpeed;
+	    if(actualLevel > currentLevel)
+			realLerpSpeed *= 2;
+		double blend = Math.pow(.5, deltaTime * realLerpSpeed);
+		actualLevel = lerp(currentLevel,actualLevel, blend);
+		
+		return fov / actualLevel;
 	}
 	
 	public void onMouseScroll(double amount)
