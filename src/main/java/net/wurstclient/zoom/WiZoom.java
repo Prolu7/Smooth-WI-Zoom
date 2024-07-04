@@ -44,12 +44,15 @@ public enum WiZoom
 			GLFW.GLFW_KEY_V, "WI Zoom");
 		KeyBindingHelper.registerKeyBinding(zoomKey);
 	}
+	
 	public double lerp(double a, double b, double f)
 	{
-	    return a * (1.0 - f) + (b * f);
+		return a * (1.0 - f) + (b * f);
 	}
+	
 	boolean hasZoomed = false;
 	long lastFrameTime = System.nanoTime();
+	
 	public double changeFovBasedOnZoom(double fov)
 	{
 		SimpleOption<Double> mouseSensitivitySetting =
@@ -63,33 +66,33 @@ public enum WiZoom
 		if(!zoomKey.isPressed())
 		{
 			if(mouseSensitivitySetting.getValue() != defaultMouseSensitivity)
-				mouseSensitivitySetting
-					.setValue(defaultMouseSensitivity);
+				mouseSensitivitySetting.setValue(defaultMouseSensitivity);
 			else
 				defaultMouseSensitivity = null;
-
+			
 			currentLevel = 1.0;
 			hasZoomed = false;
-		}
-		else if(!hasZoomed) {
+		}else if(!hasZoomed)
+		{
 			currentLevel = defaultLevel;
 			hasZoomed = true;
-		}
-		else {
+		}else
+		{
 			// Adjust mouse sensitivity in relation to zoom level.
 			mouseSensitivitySetting
 				.setValue(defaultMouseSensitivity * (1.0 / actualLevel));
 		}
 		
-		
 		long thisFrameTime = System.nanoTime();
-	    double deltaTime = (thisFrameTime - lastFrameTime) / 1_000_000_000.0;  // Convert to seconds
-	    lastFrameTime = thisFrameTime;
+		double deltaTime = (thisFrameTime - lastFrameTime) / 1_000_000_000.0; // Convert
+																				// to
+																				// seconds
+		lastFrameTime = thisFrameTime;
 		double realLerpSpeed = lerpSpeed;
-	    if(actualLevel > currentLevel)
+		if(actualLevel > currentLevel)
 			realLerpSpeed *= 2;
 		double blend = Math.pow(.5, deltaTime * realLerpSpeed);
-		actualLevel = lerp(currentLevel,actualLevel, blend);
+		actualLevel = lerp(currentLevel, actualLevel, blend);
 		
 		return fov / actualLevel;
 	}
